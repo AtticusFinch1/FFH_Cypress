@@ -1,82 +1,6 @@
 const apiUrl = Cypress.env('API_URL');
-import {
-emailInput,
-passwordInput,
-profileAvatar,
-profileCard,
-cardName,
-cardRole,
-cardBonus,
-cardBonusLink,
-cardMenuWrapper,
-profilePhoto,
-profilePhotoImage,
-profileCroptopright,
-profileSettingsItem,
-fullNameLabel,
-fullNameItem,
-fullNameEdit,
-firstNameInput,
-lastNameInput,
-bannerContent,
-usernameInput,
-countryError,
-countryPicker,
-countrySelector,
-provinceInput,
-addressInput,
-zipInput,
-educationInput,
-schoolInput,
-agentInput,
-cardDeleteDialog,
-dialogHeader,
-dialogBody,
-allowedFormat,
-heightInput,
-weightInput,
-descriptionArea,
-datePicker,
-nationalityGenderPicker,
-warningBanner,
-heightErrMessage,
-phoneToggle,
-phoneToggleParent,
-profilePhone,
-marktInput,
-marktError,
-marktIcon,
-currentPassword,
-newPassword,
-virtualScroll
-} from "./locators";
-import {
-    bonusIcon,
-    myProfile,
-    settings,
-    profileLogout,
-    deleteConfirm,
-    profilePhotoDelete,
-    nameAlert, 
-    marktLink,
-    countryAlert, 
-    provinceAlert,
-    heightAlertMin,
-    heightAlertMax,
-    weightAlertMin,
-    weightAlertMax,
-    nationalityAlert,
-    genderAlert,
-    descriptionTxt,
-    positionLabelOuter,
-    positionFirst,
-    positionAlert,
-    positionSecond,
-    footAlert,
-    prefFoot,
-    positionLabel,
-} from "./constants";
-import clubLocators from '../clubs/clubsCoach/locators';
+import locators from "./locators";
+import data from "./constants";
 
 const saveData = () => {
     cy.get('.block:visible')
@@ -84,49 +8,83 @@ const saveData = () => {
     .click()
 }
 
+const getUsername = () => {
+    return cy.url().then(url=>{
+        const username = url.split('/').pop();
+        return username;
+    })
+
+}
+
+Cypress.Commands.add('getProfileData', () => {    
+        const username = data.nameFormat;
+        cy.request({
+            method: 'POST', 
+            url: `https://dev.foothunters.com/api/players/get/${username}`,
+    
+        }).then(response => {
+            expect(response.status).to.equal(200)
+            return response.body;
+        })
+})
+
 Cypress.Commands.add('login', (email, password) => {
     cy.visit(`${apiUrl}login`)
-    cy.get(emailInput)
-    .type(email).should('have.value', email)
-    cy.get(passwordInput)
+    cy.get(locators.emailInput)
+    .type(email)
+    .should('have.value', email)
+    cy.get(locators.passwordInput)
     .type(password)
     .type('{enter}')
     cy.wait(2000)
 })
 
+Cypress.Commands.add('getName', ()=> {
+    cy.get(locators.profileAvatar).click();
+    cy.contains('div', 'My Profile')
+    .click()
+    cy.get(locators.profileName)
+    .invoke('text')
+    .then(text => {
+        const parts = text.split(' ');
+        const firstPart = parts[0];
+        return firstPart;
+    })        
+})
+
 Cypress.Commands.add('checkProfile', (name, role, options={}) => {
-    cy.get(profileAvatar).click();
-    cy.get(profileCard)
-    .find(cardName)
-    .should('have.text', name);
-    cy.get(profileCard)
-    .find(cardRole)
-    .should('have.text', role);
-    cy.get(profileCard)
-    .find(cardBonus)
-    .should('contain.text', bonusIcon);
-    cy.get(cardBonusLink)
-    .should('have.attr', 'href', '/bonus');
-    cy.get(cardMenuWrapper)
-    .children()
-    .first()
-    .should('have.text', myProfile)
-    .should('have.attr', 'href')
-    .and('include', '/profile')
-    cy.get(cardMenuWrapper)
-    .children()
-    .eq(1)
-    .should('have.text', settings)
-    .should('have.attr', 'href')
-    .and('include', '/settings')
-    cy.get(cardMenuWrapper)
-    .children()
-    .eq(2)
-    .should('have.text', profileLogout)
+    cy.get(locators.profileAvatar).click();
     if(options.visitProfile){
         cy.contains('div', 'My Profile')
         .click()
     }
+    cy.get(locators.profileCard)
+    .find(locators.cardName)
+    .should('contain.text', name);
+    cy.get(locators.profileCard)
+    .find(locators.cardRole)
+    .should('have.text', role);
+    cy.get(locators.profileCard)
+    .find(locators.cardBonus)
+    .should('contain.text', data.bonusIcon);
+    cy.get(locators.cardBonusLink)
+    .should('have.attr', 'href', '/bonus');
+    cy.get(locators.cardMenuWrapper)
+    .children()
+    .first()
+    .should('have.text', data.myProfile)
+    .should('have.attr', 'href')
+    .and('include', '/profile');
+    cy.get(locators.cardMenuWrapper)
+    .children()
+    .eq(1)
+    .should('have.text', data.settings)
+    .should('have.attr', 'href')
+    .and('include', '/settings');
+    cy.get(locators.cardMenuWrapper)
+    .children()
+    .eq(2)
+    .should('have.text', data.profileLogout);
 })
 
 Cypress.Commands.add('uploadPhoto', (imgSrc, options={}) => {
@@ -136,106 +94,113 @@ Cypress.Commands.add('uploadPhoto', (imgSrc, options={}) => {
     .selectFile(imgSrc, {force:true})
     cy.wait(2000)
     if(options.cropAfterUpload){
-        cy.get(profileCroptopright).first()
+        cy.get(locators.profileCroptopright).first()
         .trigger('mousedown', {button: 0, clientX: 250, clientY: 250})
         .trigger('mousemove', {clientX: 350, clientY: 350})
-        cy.contains('.block', 'Upload')
+        cy.contains('.block', 'Publish')
         .click()
     }
 })
 
-Cypress.Commands.add('verifyPhoto', (imgSrc, options={}) => {
-    cy.get(profilePhoto)
-    .find(profilePhotoImage)
+Cypress.Commands.add('checkAvatar', (avatarSrc) => {
+    cy.get(locators.profilePhoto)
+    .find(locators.profilePhotoImage)
+    .should('have.attr', 'src')
+    .then((src) => {
+        if (src !== avatarSrc) {
+                cy.deletePhoto();
+            }      
+    });
+});
+
+Cypress.Commands.add('verifyPhoto', (imgSrc) => {
+    cy.get(locators.profilePhoto)
+    .find(locators.profilePhotoImage)
     .should('have.attr', 'src')
     .and('include', imgSrc)
-    if(options.deleteAfterUpload) {
-        cy.contains('.block', 'Delete')
-        .click()
-        cy.get(cardDeleteDialog)
-        .find(dialogHeader)
-        .should('have.text', deleteConfirm);
-        cy.get(cardDeleteDialog)
-        .find(dialogBody)
-        .should('have.text', profilePhotoDelete);
-        cy.contains('.block', 'OK')
-        .click()
-    }
+});
+
+Cypress.Commands.add('deletePhoto', () => {
+    cy.contains('.block', 'Delete')
+    .click()
+    cy.get(locators.cardDeleteDialog)
+    .find(locators.dialogHeader)
+    .should('have.text', data.deleteConfirm);
+    cy.get(locators.cardDeleteDialog)
+    .find(locators.dialogBody)
+    .should('have.text', data.profilePhotoDelete);
+    cy.contains('.block', 'OK')
+    .click()
 })
 
 // change name, verify banner text and check if name is disabled.
 Cypress.Commands.add('changeName', (nameFirst, nameLast) => {
-    cy.get(profileSettingsItem).eq(1)
-    .find(fullNameEdit)
+    cy.get(locators.profileSettingsItem).eq(1)
+    .find(locators.fullNameEdit)
     .click();
-    cy.get(firstNameInput)
+    cy.get(locators.firstNameInput)
     .clear()
     .type(nameFirst)
     .should('have.value', nameFirst);
-    cy.get(lastNameInput)
+    cy.get(locators.lastNameInput)
     .clear()
     .type(nameLast)
     .should('have.value', nameLast);
-    cy.get(bannerContent)
-    .should('have.text', nameAlert);
+    cy.get(locators.bannerContent)
+    .should('have.text', data.nameAlert);
     saveData();
-    cy.contains(fullNameLabel, "Full name")
+    cy.contains(locators.fullNameLabel, "Full name")
     .parent()
     .should('have.class', 'disabled')
-    cy.get(profileAvatar)
+    cy.get(locators.profileAvatar)
     .click()
-    cy.get(profileCard)
-    .find(cardName)
+    cy.get(locators.profileCard)
+    .find(locators.cardName)
     .should('contain.text', nameFirst)
 })
 
 Cypress.Commands.add('verifyUsername', (unameNew, unameFormat) => {
-    cy.get(profileSettingsItem).eq(2)
-    .find(fullNameEdit)
+    cy.get(locators.profileSettingsItem).eq(2)
+    .find(locators.fullNameEdit)
     .click();
-    cy.get(usernameInput)
+    cy.get(locators.usernameInput)
     .clear()
     .type(unameNew)
     .should('have.value', unameNew);
     saveData();
-    cy.get(profileSettingsItem).eq(2)
-    .find(fullNameLabel)
+    cy.get(locators.profileSettingsItem).eq(2)
+    .find(locators.fullNameLabel)
     .should('contain.text', unameFormat);
 })
 
 Cypress.Commands.add('verifyCountry', (country, province, address, zip, options={})=> {
-    cy.get(profileSettingsItem).eq(3)
-    .find(fullNameLabel)
+    cy.get(locators.profileSettingsItem).eq(3)
+    .find(locators.fullNameLabel)
     .should('contain.text', 'Country');
-    cy.get(profileSettingsItem).eq(3)
-    .find(fullNameEdit)
+    cy.get(locators.profileSettingsItem).eq(3)
+    .find(locators.fullNameEdit)
     .click();
     if(options.verifyError) {        
         saveData()
-        cy.contains(countryError, countryAlert)
+        cy.contains(locators.countryError, locators.countryAlert)
         .should('be.visible')
-        cy.contains(countryError, provinceAlert)
+        cy.contains(locators.countryError, locators.provinceAlert)
         .should('be.visible')
     }
-    cy.contains(countryPicker, 'Country')
+    cy.contains(locators.countryPicker, 'Country')
     .click({force:true})
-    cy.get(countrySelector)
+    cy.get(locators.countrySelector)
     .scrollIntoView()
     .contains(country)
     .click()
-    if(options.verifyError){
-        saveData();
-        cy.contains(countryError, provinceAlert)
-        .should('be.visible')
-    }
-    cy.get(provinceInput)
+    cy.get(locators.provinceInput)
     .clear()
     .type(province)
-    cy.get(addressInput)
+    cy.get(locators.addressInput)
     .clear()
     .type(address)
     .should('have.value', address)
-    cy.get(zipInput)
+    cy.get(locators.zipInput)
     .clear()
     .type(zip)
     .should('have.value', zip)
@@ -243,291 +208,306 @@ Cypress.Commands.add('verifyCountry', (country, province, address, zip, options=
 })
 
 Cypress.Commands.add('verifyEducation', (institution, school, agent)=> {
-    cy.get(profileSettingsItem).eq(4)
-    .find(fullNameLabel)
+    cy.get(locators.profileSettingsItem).eq(4)
+    .find(locators.fullNameLabel)
     .should('contain.text', 'Education');
-    cy.get(profileSettingsItem).eq(4)
-    .find(fullNameEdit)
+    cy.get(locators.profileSettingsItem).eq(4)
+    .find(locators.fullNameEdit)
     .click();
-    cy.get(educationInput)
+    cy.get(locators.educationInput)
     .click({force:true})
-    cy.get(countrySelector)
+    cy.get(locators.countrySelector)
     .contains(institution)
     .click()
-    cy.get(schoolInput)
+    cy.get(locators.schoolInput)
     .clear()
     .type(school)
     .should('have.value', school);
-    cy.get(agentInput)
+    cy.get(locators.agentInput)
     .clear()
     .type(agent)
     .should('have.value', agent);
     saveData();
 })
 
-Cypress.Commands.add('verifyPersonalDetails', () => {
-    cy.get(profileSettingsItem).first()
-    .find(fullNameLabel)
+Cypress.Commands.add('verifyPersonalDetails', (
+    minHeight, 
+    maxHeight, 
+    normalHeight, 
+    minWeight, 
+    maxWeight, 
+    normalWeight, 
+    year_new, 
+    day, 
+    nationality, 
+    gender ) => {
+    cy.get(locators.profileSettingsItem).first()
+    .find(locators.fullNameLabel)
     .should('contain.text', 'Personal details');
-    cy.get(profileSettingsItem).first()
-    .find(fullNameEdit)
+    cy.get(locators.profileSettingsItem).first()
+    .find(locators.fullNameEdit)
     .click();
-    cy.get(heightInput).invoke('val').then((value) => {
+    cy.get(locators.heightInput).invoke('val').then((value) => {
         if(value === '0') {
             saveData();
-            cy.contains(heightErrMessage, heightAlertMin)
+            cy.contains(locators.heightErrMessage, data.heightAlertMin)
             .should('be.visible');
+            cy.get(locators.heightInput)
+            .clear()
+            .type(minHeight)
+            .should('have.value', minHeight)
+            saveData();
+            cy.contains(locators.heightErrMessage, data.heightAlertMin)
+            .should('be.visible')
+            cy.get(locators.heightInput)
+            .clear()
+            .type(maxHeight)
+            .should('have.value', maxHeight)
+            saveData();
+            cy.contains(locators.heightErrMessage, data.heightAlertMax)
+            .should('be.visible')
+            cy.get(locators.heightInput)
+            .clear()
+            .type(normalHeight)
+            .should('have.value', normalHeight)
+            saveData();
+            cy.contains(locators.heightErrMessage)
+            .should('not.exist')
         }
-        cy.get(heightInput)
-        .clear()
-        .type('40')
-        .should('have.value', '40')
-        saveData();
-        cy.contains(heightErrMessage, heightAlertMin)
-        .should('be.visible')
-        cy.get(heightInput)
-        .clear()
-        .type('211')
-        .should('have.value', '211')
-        saveData();
-        cy.contains(heightErrMessage, heightAlertMax)
-        .should('be.visible')
-        cy.get(heightInput)
-        .clear()
-        .type('130')
-        .should('have.value', '130')
-        saveData();
-        cy.contains(heightErrMessage)
-        .should('not.exist')
+        else {
+            cy.get(locators.heightInput)
+            .clear()
+            .type(normalHeight)
+            .should('have.value', normalHeight)
+        }
     })
-    cy.get(weightInput).invoke('val').then((value) => {
+    cy.get(locators.weightInput).invoke('val').then((value) => {
         if(value === '0') {
             saveData();
-            cy.contains('div',weightAlertMin)
+            cy.contains('div',data.weightAlertMin)
             .should('be.visible');
+            cy.get(locators.weightInput)
+            .clear()
+            .type(minWeight)
+            .should('have.value', minWeight)
+            saveData();
+            cy.contains('div', data.weightAlertMin)
+            .should('be.visible')
+            cy.get(locators.weightInput)
+            .clear()
+            .type(maxWeight)
+            .should('have.value', maxWeight)
+            saveData();
+            cy.contains('div', data.weightAlertMax)
+            .should('be.visible')
+             cy.contains('div', data.nationalityAlert)
+             .should('be.visible')
+             cy.contains('div', data.genderAlert)
+             .should('be.visible')
+            cy.get(locators.weightInput)
+            .clear()
+            .type(normalWeight)
+            .should('have.value', normalWeight)
+            saveData();
+            cy.contains(locators.heightErrMessage)
+            .should('not.exist')
+        }else {
+            cy.get(locators.weightInput)
+            .clear()
+            .type(normalWeight)
+            .should('have.value', normalWeight)
         }
-        cy.get(weightInput)
-        .clear()
-        .type('19')
-        .should('have.value', '19')
-        saveData();
-        cy.contains('div', weightAlertMin)
-        .should('be.visible')
-        cy.get(weightInput)
-        .clear()
-        .type('141')
-        .should('have.value', '141')
-        saveData();
-        cy.contains('div', weightAlertMax)
-        .should('be.visible')
-         cy.contains('div', nationalityAlert)
-         .should('be.visible')
-         cy.contains('div', genderAlert)
-         .should('be.visible')
-        cy.get(weightInput)
-        .clear()
-        .type('60')
-        .should('have.value', '60')
-        saveData();
-        cy.contains(heightErrMessage)
-        .should('not.exist')
     })
-    cy.get(descriptionArea)
+    cy.get(locators.descriptionArea)
     .clear()
-    .type(descriptionTxt)
-    cy.get(datePicker)
-    .click()
-    cy.contains('2005')
-    .click()
-    cy.contains('2000')
-    .click()
-    cy.contains('21')
-    .click()
-    cy.contains('Apply')
-    .click()
-    saveData()
-    cy.contains('div', nationalityAlert)
-    .should('be.visible')
-    cy.contains('div', genderAlert)
-    .should('be.visible')
-    cy.contains(nationalityGenderPicker, 'Nationality').parent().invoke('text').then((text) => {
+    .type(data.descriptionTxt)
+    cy.get(locators.datePicker).then(($datePicker)=>{
+        if(!$datePicker.prop('disabled')){
+            cy.wrap($datePicker).click()
+            cy.getProfileData().then((data) => {
+                const birth_date = (data.user.profile.birth_date);
+                const year = parseInt(birth_date.split("-")[0])
+                cy.contains(year)
+                .click()
+                cy.contains(year_new)
+                .click()
+                cy.contains(day)
+                .click()
+                cy.contains('Apply')
+                .click()
+            })
+        } else {
+            cy.wrap($datePicker).should('have.text', '')
+        }
+    })
+    cy.contains(locators.nationalityGenderPicker, 'Nationality').parent().invoke('text').then((text) => {
         if(text === 'Nationality'){
             saveData();
-            cy.contains('div', nationalityAlert)
+            cy.contains('div', data.nationalityAlert)
             .should('be.visible')
-            cy.contains(nationalityGenderPicker, 'Nationality')
+            cy.contains(locators.nationalityGenderPicker, 'Nationality')
             .click({force:true})
-            cy.contains('American')
+            cy.contains(nationality)
             .click()
             saveData()
-            cy.contains('div', nationalityAlert)
+            cy.contains('div', data.nationalityAlert)
             .should('not.exist')
         } else {
-            cy.contains(nationalityGenderPicker, 'Nationality')
+            cy.contains(locators.nationalityGenderPicker, 'Nationality')
             .click({force:true})
-            cy.contains('American')
+            cy.contains(nationality)
             .click()
         }
     })
-    cy.contains(nationalityGenderPicker, 'Gender').parent().invoke('text').then((text)=> {
+    cy.contains(locators.nationalityGenderPicker, 'Gender').parent().invoke('text').then((text)=> {
         if(text === 'Gender') {
             saveData();
-            cy.contains(genderAlert)
+            cy.contains(data.genderAlert)
             .should('be.visible')
-            cy.contains(nationalityGenderPicker, 'Gender')
+            cy.contains(locators.nationalityGenderPicker, 'Gender')
             .click({force:true})
-            cy.get(virtualScroll).children().its('length')
+            cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 2)
-            cy.contains('Male')
+            cy.contains(gender)
             .click();
             saveData();
-            cy.contains('div', genderAlert)
+            cy.contains('div', data.genderAlert)
             .should('not.exist')
         } else {
-            cy.contains(nationalityGenderPicker, 'Gender')
+            cy.contains(locators.nationalityGenderPicker, 'Gender')
             .click({force:true})
-            cy.contains('Male')
+            cy.contains(gender)
             .click();
             saveData();
-            cy.contains('div', genderAlert)
+            cy.contains('div', data.genderAlert)
             .should('not.exist')
         }
     })
 })
 
 Cypress.Commands.add('verifyContacts', () => {
-    cy.get(profileSettingsItem).eq(2)
-    .find(fullNameLabel)
+    cy.get(locators.profileSettingsItem).eq(2)
+    .find(locators.fullNameLabel)
     .should('contain.text', 'Contacts');
-    cy.get(profileSettingsItem).eq(2)
-    .find(fullNameEdit)
+    cy.get(locators.profileSettingsItem).eq(2)
+    .find(locators.fullNameEdit)
     .click();
-    cy.get(clubLocators.clubCreateFlag)
+    cy.get(locators.clubCreateFlag)
     .click();
     cy.contains('Argentina')
     .click();
-    cy.get(profilePhone)
+    cy.get(locators.profilePhone)
     .click()
-    .type(profilePhone)
-    cy.get(phoneToggle).first()
-    .click({force:true})
-    cy.get(phoneToggle)
-    .parent()
-    .should('have.class', phoneToggleParent)
-    cy.get(phoneToggle).eq(1)
-    .click({force:true})
-    cy.get(phoneToggle).eq(1)
-    .parent()
-    .should('have.class', phoneToggleParent);
+    .type('123456')
     saveData();
-    cy.get(profileSettingsItem).eq(3)
-    .find(fullNameLabel)
+    cy.get(locators.profileSettingsItem).eq(3)
+    .find(locators.fullNameLabel)
     .should('contain.text', 'Social Media');
-    cy.get(profileSettingsItem).eq(3)
-    .find(fullNameEdit)
+    cy.get(locators.profileSettingsItem).eq(3)
+    .find(locators.fullNameEdit)
     .click();
-    cy.get(marktInput)
+    cy.get(locators.marktInput)
     .clear()
     .type('notValidUrl')
     saveData();
-    cy.contains('div', marktError)
+    cy.contains('div', locators.marktError)
     .should('be.visible');
-    cy.get(marktInput)
+    cy.get(locators.marktInput)
     .clear()
-    .type(marktLink)
-    .should('have.value', marktLink)
+    .type(data.marktLink)
+    .should('have.value', data.marktLink)
     saveData();
-    cy.get(marktIcon)
+    cy.get(locators.marktIcon)
     .should('be.visible')
     .should('have.attr', 'href')
     .and('contain', 'transfermarkt')
 })
 
-Cypress.Commands.add('verifyPosition', ()=> {
-    cy.get(profileSettingsItem).eq(1)
-    .find(fullNameLabel)
-    .should('contain.text', positionLabel);
-    cy.get(profileSettingsItem).eq(1)
-    .find(fullNameEdit)
+Cypress.Commands.add('verifyPosition', (firstPosition, secondPosition, prefFoot)=> {
+    cy.get(locators.profileSettingsItem).eq(1)
+    .find(locators.fullNameLabel)
+    .should('contain.text', data.positionLabel);
+    cy.get(locators.profileSettingsItem).eq(1)
+    .find(locators.fullNameEdit)
     .click();
-    cy.contains(nationalityGenderPicker, positionFirst).parent().invoke('text').then((text)=> {
-        if(text === positionFirst) {
+    cy.contains(locators.nationalityGenderPicker, data.positionFirst).parent().invoke('text').then((text)=> {
+        if(text === data.positionFirst) {
             saveData();
-            cy.contains('div', positionAlert)
+            cy.contains('div', data.positionAlert)
             .should('be.visible');
-            cy.contains(footAlert)
+            cy.contains(locators.footAlert)
             .should('be.visible');
-            cy.contains(nationalityGenderPicker, positionFirst)
+            cy.contains(locators.nationalityGenderPicker, data.positionFirst)
             .click({force:true});
-            cy.get(virtualScroll).children().its('length')
+            cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            cy.contains('div', 'Left winger')
+            cy.contains('div', firstPosition)
             .click();
-            cy.contains(nationalityGenderPicker, positionSecond)
+            cy.contains(locators.nationalityGenderPicker, data.positionSecond)
             .click({force:true});
-            cy.get(virtualScroll).children().its('length')
+            cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18)
-            cy.contains('div', 'Right winger')
+            cy.contains('div', secondPosition)
             .click();
             saveData();
-            cy.contains(footAlert)
+            cy.contains(locators.footAlert)
             .should('be.visible');
-            cy.contains(nationalityGenderPicker, prefFoot)
+            cy.contains(locators.nationalityGenderPicker, data.prefFoot)
             .click({force:true})
-            cy.get(virtualScroll).children().its('length')
+            cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 4);
-            cy.contains('div', 'Right Footed')
+            cy.contains('div', prefFoot)
             .click();
             saveData();
-            cy.contains('div', positionAlert)
+            cy.contains('div', data.positionAlert)
             .should('not.exist');
-            cy.contains(footAlert)
+            cy.contains(locators.footAlert)
             .should('not.exist');
         } else {
-            cy.contains(nationalityGenderPicker, positionFirst)
+            cy.contains(locators.nationalityGenderPicker, data.positionFirst)
             .click({force:true});
-            cy.get(virtualScroll).children().its('length')
+            cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            cy.contains('div', 'Left back')
-            .click();
-            cy.contains(nationalityGenderPicker, positionSecond)
+            cy.contains('div', firstPosition)
             .click({force:true});
-            cy.get(virtualScroll).children().its('length')
+            cy.contains(locators.nationalityGenderPicker, data.positionSecond)
+            .click({force:true});
+            cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18)
-            cy.contains('div', 'Right back')
-            .click();
-            cy.contains(nationalityGenderPicker, prefFoot)
+            cy.contains('div', secondPosition)
+            .click({force:true});
+            cy.contains(locators.nationalityGenderPicker, data.prefFoot)
             .click({force:true})
-            cy.get(virtualScroll).children().its('length')
+            cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 4);
-            cy.contains('div', 'Both Feet')
-            .click();
+            cy.contains('div', prefFoot)
+            .click({force:true});
             saveData();
         }
     })
 })
 
 Cypress.Commands.add('changePassword', ()=> {
-    cy.get(profileSettingsItem).first()
-    .find(fullNameLabel)
+    cy.get(locators.profileSettingsItem).first()
+    .find(locators.fullNameLabel)
     .should('contain.text', 'Change Password');
-    cy.get(profileSettingsItem).first()
-    .find(fullNameEdit)
+    cy.get(locators.profileSettingsItem).first()
+    .find(locators.fullNameEdit)
     .click();
     saveData();
     cy.contains('div', 'The current password field is required.')
     .should('be.visible');
     cy.contains('div','The Password field is required')
     .should('be.visible')
-    cy.get(currentPassword)
+    cy.get(locators.currentPassword)
     .type(Cypress.env('PASSWORD'))
     saveData();
     cy.contains('div','The Password field is required')
     .should('be.visible')
-    cy.get(newPassword)
+    cy.get(locators.newPassword)
     .type(Cypress.env('PASSWORD_NEW'))
     saveData();
-    cy.get(profileAvatar).click()
+    cy.get(locators.profileAvatar).click()
     cy.contains('div', 'Logout')
     .click();
     cy.login(Cypress.env('EMAIL'), Cypress.env('PASSWORD'));

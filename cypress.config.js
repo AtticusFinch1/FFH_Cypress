@@ -7,7 +7,7 @@ module.exports = defineConfig({
     },
     env: {
       API_URL: "https://dev.foothunters.com/",
-      EMAIL: "player1@gmail.com",
+      EMAIL: "player2@gmail.com",
       PASSWORD: "password",
       PASSWORD_NEW: "passwordA1",
     }
