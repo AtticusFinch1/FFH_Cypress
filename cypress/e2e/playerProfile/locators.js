@@ -35,7 +35,7 @@
         countryError: '.q-field__messages.col',
         countryPicker: '.q-field__label.no-pointer-events.absolute.ellipsis',
         countrySelector: '.q-virtual-scroll__content',
-        provinceInput: 'input[aria-label="Province"]',
+        provinceInput: 'input[aria-label="City"]',
         addressInput: 'input[aria-label="Address line (Optional)"]',
         zipInput: 'input[aria-label="Zip code (Optional)"]',
         schoolInput: 'input[aria-label="School / University (Optional)"]',

@@ -1,5 +1,4 @@
 /// <reference types="cypress" />
-
 import { should } from 'chai';
 import './commands';
 import locators  from './locators';
@@ -9,7 +8,10 @@ import data from './constants';
 const actionsGeneral = new generalAcitons();
 context('Actions', () => {
     beforeEach(() => {
-        cy.login(Cypress.env('EMAIL'), Cypress.env('PASSWORD'))
+        cy.login(
+            Cypress.env('EMAIL'), 
+            Cypress.env('PASSWORD')
+        )
         cy.viewport(1200, 800)
     })
     it('Verify Personal Details', ()=> {
@@ -21,15 +23,17 @@ context('Actions', () => {
             data.minWeight, 
             data.maxWeight, 
             data.normalWeight, 
-            data.year, 
-            data.day, 
             data.nationality, 
             data.gender
         )
+        cy.verifyPosition(
+            data.firstPosition, 
+            data.secondPosition, 
+            data.preferFoot
+            );
         cy.verifyContacts();
-        cy.verifyPosition(data.firstPosition, data.secondPosition, data.prefFoot);
-        cy.visit(`${apiUrl}settings/security`);
-        cy.changePassword();
+        // cy.visit(`${apiUrl}settings/security`);
+        // cy.changePassword();
     })
 
     it('Verify Profile page', ()=> {
@@ -69,10 +73,6 @@ context('Actions', () => {
             });
             actionsGeneral.getData('Agent', 'agent').then((agent) => {
                 expect(agent).to.eq(data.playerAgent)
-        });
-    })
-    // it('check description', ()=> {
-    //     cy.get('@firstPosition').then(firstPosition => {
-    //         cy.log(firstPosition)
-    //     })
+            });
+        })
     })

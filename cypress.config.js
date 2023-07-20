@@ -7,7 +7,8 @@ module.exports = defineConfig({
     },
     env: {
       API_URL: "https://dev.foothunters.com/",
-      EMAIL: "player2@gmail.com",
+      UNAME_URL: "https://randomuser.me/api/?inc=name",
+      EMAIL: "p9@gmail.com",
       PASSWORD: "password",
       PASSWORD_NEW: "passwordA1",
     }

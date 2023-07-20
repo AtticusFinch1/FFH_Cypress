@@ -13,9 +13,6 @@ const data = {
     profilePhotoDelete : 'Are you sure you want to delete your photo?',
     imageFormat : 'The file must be a file of type: jpeg, png, jpg, gif.',
     nameAlert : 'Please Note!After your profile is approved you will not be able to change your name, surname during 60 days period.',
-    nameFirst : 'playerFive',
-    nameLast : 'playerFive',
-    nameFormat : 'player_five',
     countryAlert : 'The Country field is required.',
     provinceAlert : 'The Province field is required.',
     playerCountry : 'United States',
@@ -49,10 +46,13 @@ const data = {
     preferFoot: 'Left Footed',
     positionLabel : 'Preferred Position &amp; Foot',
     positionFirst : 'Preferred position',
-    positionAlert : 'The Preferred position field is required',
+    positionAlert : 'The Preferred position field is required.',
     positionSecond : 'Secondary position (Optional)',
-    footAlert : 'The Preferred foot field is required',
-    prefFoot : 'Preferred foot'
+    footAlert : 'The Preferred foot field is required.',
+    prefFoot : 'Preferred foot',
+    passwordAlert: 'The current password field is required.',
+    rePasswordAlert: 'The Password field is required',
+    invalidCred: 'Invalid email or password.',
 }
 
 export default data;
