@@ -10,10 +10,11 @@ Cypress.Commands.add('getUsername', () => {
     cy.visit(`${apiUrl}`)
     actions.clickByLocator(locators.profileAvatar);
     actions.clickByText('div', 'My Profile');
+    cy.wait(2000);
     cy.url().then(url=>{
-    const urlAll = url.split('/');
-    const username = urlAll[urlAll.length-1];
-    return username;
+    const lastValue = (url.split('/'));
+    const id = lastValue[4];
+    return id;
     })
 });
 
@@ -146,12 +147,13 @@ Cypress.Commands.add('verifyUsername', (unameNew) => {
     })
 });
 
-Cypress.Commands.add('verifyCountry', (country, province, address, zip)=> {
+Cypress.Commands.add('verifyCountry', (province, address, zip)=> {
     actions.getFind(locators.profileSettingsItem, locators.fullNameLabel, 3)
     .should('contain.text', 'Country');
     actions.getIndexFindClick(locators.profileSettingsItem, 3, locators.fullNameEdit);
-    actions.clickByText(locators.countryPicker, 'Country');
-    actions.selectCountry(locators.countrySelector, country)
+    actions.clickByText(locators.countryPicker, 'Country')
+    actions.getElement(locators.dropdownSelect).first().type('{downarrow}{downarrow}', {force:true})
+    actions.getElement(locators.dropdownSelect).first().type('{enter}', {force:true})
     actions.typeText(locators.provinceInput, province);
     actions.typeText(locators.addressInput, address);
     actions.typeText(locators.zipInput, zip);
@@ -176,7 +178,6 @@ Cypress.Commands.add('verifyPersonalDetails', (
     minWeight, 
     maxWeight, 
     normalWeight, 
-    nationality, 
     gender ) => {
     actions.getFirstFind(locators.profileSettingsItem, locators.fullNameLabel)
     .should('contain.text', 'Personal details');
@@ -227,13 +228,14 @@ Cypress.Commands.add('verifyPersonalDetails', (
             actions.saveData();
             actions.verifyErrMessage('div', data.nationalityAlert);
             actions.clickByText(locators.nationalityGenderPicker, 'Nationality');
-            actions.clickByText(locators.nationalityGenderPopup, nationality);
+            actions.getElement(locators.dropdownSelect).first().type('{downarrow}{downarrow}', {force:true})
+            actions.getElement(locators.dropdownSelect).first().type('{enter}', {force:true})
             actions.saveData();
             actions.verifyErrMessage('div', data.nationalityAlert, {notVisible:true});
         } else {
             actions.clickByText(locators.nationalityGenderPicker, 'Nationality');
-            cy.contains(locators.nationalityGenderPopup, nationality)
-            .click()
+            actions.getElement(locators.dropdownSelect).first().type('{downarrow}{downarrow}', {force:true})
+            actions.getElement(locators.dropdownSelect).first().type('{enter}', {force:true})
         }
     })
     actions.containsParentInvoke(locators.nationalityGenderPicker, 'Gender', 'text').then((text)=> {
@@ -318,11 +320,11 @@ Cypress.Commands.add('verifyPosition', (firstPosition, secondPosition, prefFoot)
             actions.clickByText(locators.nationalityGenderPicker, data.positionFirst);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            actions.clickByText('div', firstPosition);
+            actions.clickByText('.q-item__label', firstPosition);
             actions.clickByText(locators.nationalityGenderPicker, data.positionSecond);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            actions.clickByText('div', secondPosition);
+            actions.clickByText('.q-item__label', secondPosition);
             actions.saveData();
             actions.verifyErrMessage('div', data.footAlert);
             actions.clickByText(locators.nationalityGenderPicker, data.prefFoot);
@@ -336,11 +338,11 @@ Cypress.Commands.add('verifyPosition', (firstPosition, secondPosition, prefFoot)
             actions.clickByText(locators.nationalityGenderPicker, data.positionFirst);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            actions.clickByText('div', firstPosition);
+            actions.clickByText('.q-item__label', firstPosition);
             actions.clickByText(locators.nationalityGenderPicker, data.positionSecond);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            actions.clickByText('div', secondPosition);
+            actions.clickByText('.q-item__label', secondPosition);
             actions.clickByText(locators.nationalityGenderPicker, data.prefFoot);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 4);

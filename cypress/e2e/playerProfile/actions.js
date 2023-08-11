@@ -44,10 +44,10 @@ export default class generalActions {
         .find(findLocator)
     }
 
-    getNthChild(locator, index){
-        return this.getElement(locator)
-        .children()
-        .eq(index);
+    getNthChild(locator, index, tag){
+        return tag 
+        ? this.getElement(locator).children(tag).eq(index)
+        : this.getElement(locator).children().eq(index)
     }
 
     getParent(tag, text){
@@ -58,7 +58,7 @@ export default class generalActions {
     typeText(locator, text){
         return this.getElement(locator)
         .clear()
-        .type(text)
+        .type(text, {delay:100})
         .should('have.value', text)
     }
 
