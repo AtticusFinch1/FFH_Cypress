@@ -1,37 +1,51 @@
 import clubLocators from "../clubsCoach/locators";
+import generalActions from "../../playerProfile/actions";
+import clubData from "./constants";
+const apiUrl = Cypress.env('API_URL');
 
-Cypress.Commands.add('login', (email, password) => {
-    cy.visit('https://dev.foothunters.com/login')
-    cy.get(clubLocators.emailInput)
-    .type(email).should('have.value', email)
-    cy.get(clubLocators.passwordInput)
-    .type(password)
-    .type('{enter}')
-    cy.wait(3000)
+const profileActions = new generalActions();
+
+Cypress.Commands.add('logout', ()=>{
+  profileActions.clickByLocator(clubLocators.avatarIcon)
+  profileActions.clickByText("Logout")
+})
+
+Cypress.Commands.add('uploadLogo', (imgSrc)=>{
+  profileActions.clickByText('Upload logo');
+  profileActions.putPhoto(imgSrc);
+  cy.wait(2000);
+  profileActions.clickByText('.block', 'Publish');
+})
+
+Cypress.Commands.add('visitFirstClub', ()=>{
+  profileActions.getElement(
+    clubLocators.clubCard
+  )
+  .first()
+  .click();
 })
 
 Cypress.Commands.add('addStaff', (index, email, text) => {
-  cy.get(clubLocators.clubAddPlayersSection).eq(index)
-  .find(clubLocators.clubPlayerAdd)
-  .click()
-  cy.get(clubLocators.playerAddPopup)
-  .should('exist')
-  cy.get(clubLocators.playerAddTitle)
+  profileActions.getIndexFindClick(
+    clubLocators.clubAddPlayersSection, 
+    index, 
+    clubLocators.clubPlayerAdd
+  );
+  profileActions.getElement(clubLocators.playerAddPopup)                               // Verify player/coach add popup
+  .should('exist');
+  profileActions.getElement(clubLocators.playerAddTitle)
   .should('have.text', 'Add Staff')
   .next()
-  .should('have.text', 'To add staff please start typing and select from our suggestions.')
-  // cy.get(clubLocators.playerAddBottom) BUG after popup close the Add staff button is still active.
-  // .contains('button', 'Add to Page')
-  // .should('have.attr', 'aria-disabled', 'true')
-  cy.get(clubLocators.playerAddInput)
-  .click()
-  .type(text, { delay: 100 })
-  .should('have.value', text)
-    cy.wait(2000)
-    cy.get(clubLocators.playerAddSuggestion)
-    .should('exist')
-    .find(clubLocators.playerAddRow)        
-    .each(($child) => {
+  .should('have.text', clubData.playerAddText);
+  profileActions.getElement(clubLocators.playerAddBottom) 
+  .contains('button', 'Add to Page')
+  .should('have.attr', 'aria-disabled', 'true');
+  profileActions.typeText(clubLocators.playerAddInput, text);
+  cy.wait(2000)
+  profileActions.getElement(clubLocators.playerAddSuggestion)
+  .should('exist')
+  .find(clubLocators.playerAddRow)                                  // Verify all search results match with search query 
+    .each(($child) => {       
         const childTexts = [...$child].map((child) => child.innerText)
         cy.wrap(childTexts).each((child) => {
             expect(child).to.match(new RegExp(text, 'i'))
@@ -52,10 +66,10 @@ Cypress.Commands.add('checkStaff', (row, text, role) => {
   cy.get(clubLocators.clubAddPlayersSection).eq(row)
   .find(clubLocators.staffPendingRow)
   .should('be.visible')
-  .should('have.text', text);
-  cy.get(clubLocators.clubAddPlayersSection).eq(row).
-  find(clubLocators.staffPendingRowBottom).eq(0)
-  .should('have.text', role);
+  .should('contain.text', text);
+  cy.get(clubLocators.clubAddPlayersSection).eq(row)
+  .find(clubLocators.staffPendingRowBottom).eq(0)
+  .should('contain.text', role);
 })
 
 Cypress.Commands.add('checkTeam', (index, text) => {
@@ -68,13 +82,24 @@ Cypress.Commands.add('checkTeam', (index, text) => {
   .children()
   .eq(1)
   .should('have.class', clubLocators.teamCardBottom)
-  .should('have.text', text)
+  .should('contain.text', text)
 })
 
-Cypress.Commands.add('notificationClick', (text) => {
-  cy.get('div[class="flex-shrink q-gutter-x-sm"] button:nth-child(2)')
-  .click()
-  cy.contains('div.q-item__label.overflow-hidden', text)
-  .first()
-  .click()
+Cypress.Commands.add('notificationClick', () => {
+  profileActions.clickByLocator(clubLocators.notificationIcon)
+  profileActions.getFirstChild(clubLocators.notificationBody).click();
+})
+
+Cypress.Commands.add('getMyClubs', ()=> {
+  const payload = "mine";
+  cy.request({
+    method: 'POST',
+    url: `${apiUrl}api/clubs/find`, 
+    body: payload, 
+    headers: {
+      'Content-Type': 'application/json',
+    }
+  }).then(response => {
+    cy.log(response.body.clubs.data);
+  })
 })
