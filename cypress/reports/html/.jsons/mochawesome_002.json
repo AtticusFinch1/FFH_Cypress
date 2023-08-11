@@ -1,0 +1,166 @@
+{
+  "stats": {
+    "suites": 2,
+    "tests": 3,
+    "passes": 3,
+    "pending": 0,
+    "failures": 0,
+    "start": "2023-08-09T06:24:28.125Z",
+    "end": "2023-08-09T06:24:59.439Z",
+    "duration": 31314,
+    "testsRegistered": 3,
+    "passPercent": 100,
+    "pendingPercent": 0,
+    "other": 0,
+    "hasOther": false,
+    "skipped": 0,
+    "hasSkipped": false
+  },
+  "results": [
+    {
+      "uuid": "aceaff98-e57d-4a35-8117-1ef3e76a77b2",
+      "title": "",
+      "fullFile": "cypress\\e2e\\clubs\\clubsCoach\\main.cy.js",
+      "file": "cypress\\e2e\\clubs\\clubsCoach\\main.cy.js",
+      "beforeHooks": [],
+      "afterHooks": [],
+      "tests": [],
+      "suites": [
+        {
+          "uuid": "055657c6-2f4d-4cd5-a6c3-434242c3edb5",
+          "title": "Actions",
+          "fullFile": "",
+          "file": "",
+          "beforeHooks": [],
+          "afterHooks": [],
+          "tests": [
+            {
+              "title": "Verify Club single page header.",
+              "fullTitle": "Actions Verify Club single page header.",
+              "timedOut": null,
+              "duration": 12704,
+              "state": "passed",
+              "speed": "slow",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit(`${apiUrl}clubs/my`);\nprofileActions.getElement(_locators.default.clubCard).first().click();\nprofileActions.getElement(_locators.default.clubSingleLogo).should('have.css', 'object-fit', 'contain').should('have.css', 'object-position', '50% 50%');\nprofileActions.getElement(_locators.default.clubFollowText).invoke('text').then($text => {\n  profileActions.getElement(_locators.default.clubFollowCount).then($span => {\n    const num1 = parseInt($span.text().replace(/\\D/g, \"\"));\n    cy.wrap(num1).as('num1');\n    profileActions.getElement(_locators.default.clubSingleFollow).click();\n    cy.wait(2000);\n    profileActions.getElement(_locators.default.clubFollowCount).then($span => {\n      const num2 = parseInt($span.text().replace(/\\D/g, \"\"));\n      cy.get('@num1').then(num1 => {\n        switch ($text) {\n          case 'Follow':\n            expect(num2).to.eq(num1 + 1);\n            break;\n          case 'Following':\n            expect(num2).to.eq(num1 - 1);\n            break;\n          default:\n            break;\n        }\n      });\n    });\n  });\n});\nconst socialLinks = [{\n  index: 0,\n  attr: 'href',\n  value: _constants2.default.socialPhone\n}, {\n  index: 1,\n  attr: 'href',\n  value: _constants2.default.socialEmail\n}, {\n  index: 2,\n  attr: 'href',\n  value: _constants2.default.socialUrl\n}];\nprofileActions.getElement(_locators.default.clubSocialLinks).children().should('have.length', socialLinks.length);\nsocialLinks.forEach(link => {\n  profileActions.getElement(_locators.default.clubSocialLinks).children().eq(link.index).should('have.attr', link.attr, link.value);\n});",
+              "err": {},
+              "uuid": "11c8cb86-14fb-4c63-b25c-a5cbb4202e15",
+              "parentUUID": "055657c6-2f4d-4cd5-a6c3-434242c3edb5",
+              "isHook": false,
+              "skipped": false
+            },
+            {
+              "title": "Verify not moderated Club single page tabs",
+              "fullTitle": "Actions Verify not moderated Club single page tabs",
+              "timedOut": null,
+              "duration": 8788,
+              "state": "passed",
+              "speed": "medium",
+              "pass": true,
+              "fail": false,
+              "pending": false,
+              "context": null,
+              "code": "cy.visit(`${apiUrl}clubs/my`);\nprofileActions.getElement(_locators.default.clubCard).first().click();\nconst tabInfo = [{\n  index: 0,\n  text: 'Page',\n  link: '/club/'\n}, {\n  index: 1,\n  text: 'Team',\n  link: '/team'\n}, {\n  index: 2,\n  text: 'Tryouts',\n  link: '/tryouts'\n}, {\n  index: 3,\n  text: 'Camps',\n  link: '/camps'\n}, {\n  index: 4,\n  text: 'Photos',\n  link: '/photos'\n}, {\n  index: 5,\n  text: 'Videos',\n  link: '/videos'\n}, {\n  index: 6,\n  text: 'Statistics',\n  link: '/statistics'\n}];\ntabInfo.forEach(tab => {\n  profileActions.getNthChild(_locators.default.clubSingleTabsWrapper, tab.index, 'a').find(_locators.default.clubTabs).should('have.text', tab.text).parent().parent().should('have.attr', 'href').and('include', tab.link);\n});",
+              "err": {},
+              "uuid": "8659b65a-62af-49b9-bfd9-ffdbe951019e",
+              "parentUUID": "055657c6-2f4d-4cd5-a6c3-434242c3edb5",
+              "isHook": false,
+              "skipped": false
+            }
+          ],
+          "suites": [
+            {
+              "uuid": "68448768-1964-429a-a94f-e78238709da8",
+              "title": "My first test",
+              "fullFile": "",
+              "file": "",
+              "beforeHooks": [],
+              "afterHooks": [],
+              "tests": [
+                {
+                  "title": "Verify club page title and tabs (Qase ID: 1)",
+                  "fullTitle": "Actions My first test Verify club page title and tabs (Qase ID: 1)",
+                  "timedOut": null,
+                  "duration": 6557,
+                  "state": "passed",
+                  "speed": "medium",
+                  "pass": true,
+                  "fail": false,
+                  "pending": false,
+                  "context": null,
+                  "code": "profileActions.getFind(_locators.default.clubTabsLong, 'a').should('have.length', 3);\nprofileActions.getElement(_locators.default.clubTab).first().should('have.attr', 'aria-selected', 'true').should('have.text', _constants2.default.clubsTabAll).next().should('have.attr', 'aria-selected', 'false').should('have.text', _constants2.default.clubsTabMy).next().should('have.attr', 'aria-selected', 'false').should('have.text', _constants2.default.clubsTabFollow);",
+                  "err": {},
+                  "uuid": "5fadb625-eee7-4c9b-afdc-d3cc5948dbc0",
+                  "parentUUID": "68448768-1964-429a-a94f-e78238709da8",
+                  "isHook": false,
+                  "skipped": false
+                }
+              ],
+              "suites": [],
+              "passes": [
+                "5fadb625-eee7-4c9b-afdc-d3cc5948dbc0"
+              ],
+              "failures": [],
+              "pending": [],
+              "skipped": [],
+              "duration": 6557,
+              "root": false,
+              "rootEmpty": false,
+              "_timeout": 2000
+            }
+          ],
+          "passes": [
+            "11c8cb86-14fb-4c63-b25c-a5cbb4202e15",
+            "8659b65a-62af-49b9-bfd9-ffdbe951019e"
+          ],
+          "failures": [],
+          "pending": [],
+          "skipped": [],
+          "duration": 21492,
+          "root": false,
+          "rootEmpty": false,
+          "_timeout": 2000
+        }
+      ],
+      "passes": [],
+      "failures": [],
+      "pending": [],
+      "skipped": [],
+      "duration": 0,
+      "root": true,
+      "rootEmpty": true,
+      "_timeout": 2000
+    }
+  ],
+  "meta": {
+    "mocha": {
+      "version": "7.0.1"
+    },
+    "mochawesome": {
+      "options": {
+        "quiet": false,
+        "reportFilename": "mochawesome",
+        "saveHtml": false,
+        "saveJson": true,
+        "consoleReporter": "spec",
+        "useInlineDiffs": false,
+        "code": true
+      },
+      "version": "7.1.3"
+    },
+    "marge": {
+      "options": {
+        "id": "default",
+        "charts": true,
+        "overwrite": false,
+        "html": false,
+        "json": true,
+        "reportDir": "cypress\\reports\\html\\.jsons"
+      },
+      "version": "6.2.0"
+    }
+  }
+}

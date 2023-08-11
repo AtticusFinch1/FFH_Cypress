@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "QASE_REPORT=1 npx cypress run",
     "cypress:open": "cypress open"
   },
   "author": "",
@@ -15,6 +15,9 @@
   },
   "dependencies": {
     "buffer": "^6.0.3",
+    "cypress-mochawesome-reporter": "^3.5.1",
+    "cypress-multi-reporters": "^1.6.3",
+    "cypress-qase-reporter": "^1.4.2-alpha.3",
     "faker": "^6.6.6",
     "http": "^0.0.1-security",
     "https": "^1.0.0",
