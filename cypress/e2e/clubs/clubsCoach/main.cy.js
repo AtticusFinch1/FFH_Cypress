@@ -250,9 +250,7 @@ context('Actions', () => {
       }));
       qase(2, it('Verify not moderated Club single page tabs', () => {
         cy.visit(`${apiUrl}clubs/my`);
-        profileActions.getElement(clubLocators.clubCard)
-          .first()
-          .click();
+        cy.visitFirstClub();
         const tabInfo = [
           { index: 0, text: 'Page', link: '/club/' },
           { index: 1, text: 'Team', link: '/team' },
