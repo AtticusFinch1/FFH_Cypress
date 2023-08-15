@@ -71,16 +71,20 @@ Cypress.Commands.add('checkProfile', (name, role, options={}) => {
     .should('contain.text', data.bonusIcon);
     actions.getElement(locators.cardBonusLink)
     .should('have.attr', 'href', '/bonus');
-    actions.getFirstChild(locators.cardMenuWrapper)
-    .should('have.text', data.myProfile)
-    .should('have.attr', 'href')
-    .and('include', '/profile');
-    actions.getNthChild(locators.cardMenuWrapper, 1)
-    .should('have.text', data.settings)
-    .should('have.attr', 'href')
-    .and('include', '/settings');
-    actions.getNthChild(locators.cardMenuWrapper, 2)
-    .should('have.text', data.profileLogout);
+    const menuItems = [
+        {text:  data.myProfile,      href: '/profile' },
+        {text:  data.settings,       href: '/settings'},
+        {text:  data.profileLogout                    }
+    ];
+    menuItems.forEach((item, index) => {
+        actions.getNthChild(locators.cardMenuWrapper, index)
+        .should('have.text', item.text)
+        if (item.href){
+            actions.getNthChild(locators.cardMenuWrapper, index)
+            .should('have.attr', 'href')
+            .and('include', item.href)
+        }
+    })
 })
 
 Cypress.Commands.add('uploadPhoto', (imgSrc, options={}) => {
@@ -320,17 +324,17 @@ Cypress.Commands.add('verifyPosition', (firstPosition, secondPosition, prefFoot)
             actions.clickByText(locators.nationalityGenderPicker, data.positionFirst);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            actions.clickByText('.q-item__label', firstPosition);
+            cy.contains('.q-item__label', firstPosition).click();
             actions.clickByText(locators.nationalityGenderPicker, data.positionSecond);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            actions.clickByText('.q-item__label', secondPosition);
+            cy.contains('.q-item__label', secondPosition).click();
             actions.saveData();
             actions.verifyErrMessage('div', data.footAlert);
             actions.clickByText(locators.nationalityGenderPicker, data.prefFoot);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 4);
-            actions.clickByText('div', prefFoot);
+            cy.contains('div', prefFoot).click();
             actions.saveData();
             actions.verifyErrMessage('div', data.positionAlert, {notVisible:true})
             actions.verifyErrMessage('div', data.footAlert, {notVisible:true})
@@ -338,15 +342,15 @@ Cypress.Commands.add('verifyPosition', (firstPosition, secondPosition, prefFoot)
             actions.clickByText(locators.nationalityGenderPicker, data.positionFirst);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            actions.clickByText('.q-item__label', firstPosition);
+            cy.contains('.q-item__label', firstPosition).click();
             actions.clickByText(locators.nationalityGenderPicker, data.positionSecond);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 18);
-            actions.clickByText('.q-item__label', secondPosition);
+            cy.contains('.q-item__label', secondPosition).click();
             actions.clickByText(locators.nationalityGenderPicker, data.prefFoot);
             cy.get(locators.virtualScroll).children().its('length')
             .should('eq', 4);
-            actions.clickByText('div', prefFoot);
+            cy.contains('div', prefFoot).click();
             actions.saveData();
         }
     })

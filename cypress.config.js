@@ -33,6 +33,7 @@ module.exports = defineConfig({
       EMAIL_PLAYER: 'user1_user1_261',
       EMAIL_COACH: 'rapegor642@otanhome.com',
       EMAIL_OTHER: 'c1@gmail.com',
+      EMAIL_SETTINGS: 'asd2@gmail.com',
     }
   },
 });
