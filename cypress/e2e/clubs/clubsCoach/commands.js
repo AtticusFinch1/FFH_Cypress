@@ -44,17 +44,18 @@ Cypress.Commands.add('addStaff', (index, email, text) => {
   cy.wait(2000)
   profileActions.getElement(clubLocators.playerAddSuggestion)
   .should('exist')
-  .find(clubLocators.playerAddRow)                                  // Verify all search results match with search query 
+  .find(clubLocators.playerAddRow)                                                    // Verify all search results match with search query 
     .each(($child) => {       
         const childTexts = [...$child].map((child) => child.innerText)
         cy.wrap(childTexts).each((child) => {
             expect(child).to.match(new RegExp(text, 'i'))
             if(child.includes(email)){
-              cy.wrap($child).click();  
+              cy.wrap($child).click();
               cy.get(clubLocators.playerAddBottom) 
               .contains('button', 'Add to Page')
               .should('not.have.attr', 'aria-disabled', 'true')
               .click()
+              cy.wait(3000);  
             } else {
               cy.log('User already exists.')
             }                  
